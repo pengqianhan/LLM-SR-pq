@@ -54,6 +54,8 @@ class Config:
        samples_per_prompt (int): Number of hypotheses per prompt
        evaluate_timeout_seconds (int): Hypothesis evaluation timeout
        use_api (bool): API usage flag
+       api_type (str): API type ('openai' or 'gemini'), auto-detected from api_model if not specified
+       api_model (str): Model name for API calls
    """
     experience_buffer: ExperienceBufferConfig = dataclasses.field(default_factory=ExperienceBufferConfig)
     num_samplers: int = 1 
@@ -61,6 +63,7 @@ class Config:
     samples_per_prompt: int = 4
     evaluate_timeout_seconds: int = 30  
     use_api: bool = False
+    api_type: str = "auto"  # "openai", "gemini", or "auto" for auto-detection
     api_model: str = "gpt-3.5-turbo"
 
 

@@ -145,3 +145,4 @@ dependencies:
     - websockets==12.0
     - werkzeug==3.0.1
     - wheel==0.41.2
+    - google-genai

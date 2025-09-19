@@ -182,9 +182,32 @@ class LocalLLM(LLM):
     def draw_samples(self, prompt: str, config: config_lib.Config) -> Collection[str]:
         """Returns multiple equation program skeleton hypotheses for the given `prompt`."""
         if config.use_api:
-            return self._draw_samples_api(prompt, config)
+            # 确定使用哪种API
+            api_type = self._determine_api_type(config)
+            
+            if api_type == 'gemini':
+                return self._draw_samples_api_gemini(prompt, config)
+            else:  # 默认使用OpenAI
+                return self._draw_samples_api(prompt, config)
         else:
             return self._draw_samples_local(prompt, config)
+
+    def _determine_api_type(self, config: config_lib.Config) -> str:
+        """根据配置确定使用哪种API类型"""
+        # 如果明确指定了api_type且不是auto，直接使用
+        if hasattr(config, 'api_type') and config.api_type and config.api_type != 'auto':
+            return config.api_type.lower()
+        
+        # 否则根据模型名称自动判断
+        if config.api_model:
+            model_name = config.api_model.lower()
+            if 'gemini' in model_name:
+                return 'gemini'
+            elif any(openai_model in model_name for openai_model in ['gpt', 'chatgpt', 'davinci', 'curie', 'babbage', 'ada']):
+                return 'openai'
+        
+        # 默认返回openai
+        return 'openai'
 
 
     def _draw_samples_local(self, prompt: str, config: config_lib.Config) -> Collection[str]:    
@@ -248,6 +271,84 @@ class LocalLLM(LLM):
 
                 except Exception:
                     continue
+        
+        return all_samples
+
+
+    def _draw_samples_api_gemini(self, prompt: str, config: config_lib.Config) -> Collection[str]:
+        """使用最新的Google Gen AI Python SDK生成样本"""
+        all_samples = []
+        prompt = '\n'.join([self._instruction_prompt, prompt])
+        
+        # 导入最新的Google Gen AI库
+        try:
+            from google import genai
+            from google.genai import types
+        except ImportError:
+            raise ImportError("请安装最新的google-genai库: pip install google-genai")
+        
+        # 配置API密钥 - 优先使用GEMINI_API_KEY，否则使用API_KEY
+        api_key = os.environ.get('GEMINI_API_KEY') or os.environ.get('API_KEY')
+        if not api_key:
+            raise ValueError("请设置环境变量GEMINI_API_KEY或API_KEY")
+        
+        # 创建客户端
+        client = genai.Client(api_key=api_key)
+        
+        # 处理模型名称（移除可能的"models/"前缀）
+        model_name = config.api_model
+        if model_name.startswith("models/"):
+            model_name = model_name[7:]  # 移除"models/"前缀
+        
+        for i in range(self._samples_per_prompt):
+            retry_count = 0
+            max_retries = 3
+            
+            while retry_count < max_retries:
+                try:
+                    # 使用新的API生成内容
+                    response = client.models.generate_content(
+                        model=model_name,
+                        contents=prompt,
+                        config=types.GenerateContentConfig(
+                            max_output_tokens=512,
+                            temperature=0.8,
+                            top_p=0.9,
+                            top_k=40,
+                        )
+                    )
+                    
+                    if response.text:
+                        response_text = response.text
+                        
+                        if self._trim:
+                            response_text = _extract_body(response_text, config)
+                        
+                        all_samples.append(response_text)
+                        break
+                    else:
+                        print(f"Gemini API返回空响应 (样本 {i+1}/{self._samples_per_prompt})")
+                        retry_count += 1
+                        
+                except Exception as e:
+                    retry_count += 1
+                    print(f"Gemini API调用失败 (样本 {i+1}/{self._samples_per_prompt}, 重试 {retry_count}/{max_retries}): {e}")
+                    
+                    if retry_count < max_retries:
+                        import time
+                        time.sleep(1)  # 短暂延迟后重试
+                    else:
+                        # 如果所有重试都失败，添加一个默认的空响应
+                        print(f"样本 {i+1} 生成失败，跳过")
+                        all_samples.append("")
+                        break
+        
+        # 过滤掉空响应
+        all_samples = [sample for sample in all_samples if sample.strip()]
+        
+        # 如果没有成功生成任何样本，抛出异常
+        if not all_samples:
+            raise RuntimeError("Gemini API未能生成任何有效样本")
         
         return all_samples
     
