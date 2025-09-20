@@ -75,6 +75,40 @@ class Sampler:
                 break
             
             prompt = self._database.get_prompt()
+            print('prompt.code:',prompt.code)
+            '''
+            """
+            Find the mathematical function skeleton that represents acceleration in a damped nonlinear oscillator system with driving force, given data on position, and velocity. 
+            """
+
+
+            import numpy as np
+
+            #Initialize parameters
+            MAX_NPARAMS = 10
+            params = [1.0]*MAX_NPARAMS
+
+
+            def equation_v0(x: np.ndarray, v: np.ndarray, params: np.ndarray) -> np.ndarray:
+                """ Mathematical function for acceleration in a damped nonlinear oscillator
+
+                Args:
+                    x: A numpy array representing observations of current position.
+                    v: A numpy array representing observations of velocity.
+                    params: Array of numeric constants or parameters to be optimized
+
+                Return:
+                    A numpy array representing acceleration as the result of applying the mathematical function to the inputs.
+                """
+                dv = params[0] * x  +  params[1] * v  + params[2]
+                return dv
+
+
+            def equation_v1(x: np.ndarray, v: np.ndarray, params: np.ndarray) -> np.ndarray:
+                """Improved version of `equation_v0`."""
+            
+            
+            '''
             
             reset_time = time.time()
             samples = self._llm.draw_samples(prompt.code,self.config)
