@@ -90,8 +90,8 @@ def main(
 
     # Set global max sample nums.
     samplers = [sampler.Sampler(database, evaluators, 
-                                config.samples_per_prompt, 
-                                max_sample_nums=max_sample_nums, 
+                                config.samples_per_prompt, # default is 4
+                                max_sample_nums=max_sample_nums, # default is 10000, for test is 3
                                 llm_class=class_config.llm_class,
                                 config = config) 
                                 for _ in range(config.num_samplers)]

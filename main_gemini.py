@@ -45,7 +45,8 @@ if __name__ == '__main__':
     config = config.Config(use_api = args.use_api, 
                            api_type = args.api_type,
                            api_model = args.api_model,)
-    global_max_sample_num = 10000 
+    # global_max_sample_num = 10000
+    global_max_sample_num = 3 # for test  
 
     # Load prompt specification
     with open(
