@@ -11,9 +11,10 @@ from flask_cors import CORS
 
 # arguments
 parser = ArgumentParser()
-parser.add_argument('--gpu_ids', nargs='+', default=['0','1','2','3'])
+parser.add_argument('--gpu_ids', nargs='+', default=['0'])
 parser.add_argument('--quantization', default=False, action='store_true')
-parser.add_argument('--model_path', type=str, default='mistralai/Mixtral-8x7B-Instruct-v0.1')
+# parser.add_argument('--model_path', type=str, default='mistralai/Mixtral-8x7B-Instruct-v0.1')
+parser.add_argument('--model_path', type=str, default='Qwen/Qwen3-8B')
 parser.add_argument('--host', type=str, default=None)
 parser.add_argument('--port', type=int, default=None)
 parser.add_argument('--temperature', type=float, default=0.8)
