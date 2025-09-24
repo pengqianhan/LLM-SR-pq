@@ -245,6 +245,19 @@ class Island:
 
         indices = np.argsort(scores)
         sorted_implementations = [implementations[i] for i in indices]
+        # print('sorted_implementations:',sorted_implementations)
+        '''
+        [Function(name='equation', args='x: np.ndarray, v: np.ndarray, params: np.ndarray', body='    dv = params[0] * x  +  params[1] * v  + params[2]   
+        return dv', return_type='np.ndarray', docstring=' Mathematical function for acceleration in a damped nonlinear oscillator\n\n    
+        Args:\n        
+        x: A numpy array representing observations of current position.\n
+                v: A numpy array representing observations of velocity.\n        
+                params: Array of numeric constants or parameters to be optimized\n\n    
+                Return:\n        
+                A numpy array representing acceleration as the result of applying the mathematical function to the inputs.\n    
+                ', score=-0.0004185108785400035, global_sample_nums=None, sample_time=None, evaluate_time=1.2148082256317139)]
+        
+        '''
         version_generated = len(sorted_implementations) + 1
         return self._generate_prompt(sorted_implementations), version_generated
 
@@ -284,7 +297,7 @@ class Island:
 
         # Replace functions in the template with the list constructed here.
         prompt = dataclasses.replace(self._template, functions=versioned_functions)
-        
+        print('prompt:',prompt)
         return str(prompt)
 
 

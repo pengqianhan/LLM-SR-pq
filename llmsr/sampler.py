@@ -116,6 +116,49 @@ class Sampler:
 
             # This loop can be executed in parallel on remote evaluator machines.
             for sample in samples:
+                print('sample:',sample)
+                '''
+                    """ Mathematical function for acceleration in a damped nonlinear oscillator
+
+                    Args:
+                        x: A numpy array representing observations of current position.
+                        v: A numpy array representing observations of velocity.
+                        params: Array of numeric constants or parameters to be optimized
+
+                    Return:
+                        A numpy array representing acceleration as the result of applying the mathematical function to the inputs.
+                    """
+                    dv = params[0] * x  +  params[1] * v  + params[2]
+                    return dv
+
+
+                def equation_v1(x: np.ndarray, v: np.ndarray, params: np.ndarray) -> np.ndarray:
+                    """Improved version of `equation_v0`.
+
+                    This version introduces a nonlinear term for damping and a driving force term.
+                    The general form of the equation of motion for a damped nonlinear oscillator
+                    with a driving force is:
+                    m * d^2x/dt^2 + f(dx/dt) + g(x) = F(t)
+
+                    where:
+                    m is mass (can be absorbed into parameters if not explicitly known)
+                    d^2x/dt^2 is acceleration
+                    f(dx/dt) is the damping force (can be linear or nonlinear)
+                    g(x) is the restoring force (can be linear or nonlinear)
+                    F(t) is the driving force (can be time-dependent or position/velocity dependent)
+
+                    In this improved version, we'll model:
+                    - Linear damping: params[1] * v
+                    - Nonlinear damping: params[3] * v**3 (e.g., cubic damping)
+                    - Nonlinear restoring force: params[0] * x + params[4] * x**3 (e.g., hardening spring)
+                    - A constant driving force: params[2]
+                    - A velocity-dependent driving force: params[5] * v
+                    - A position-dependent driving force: params[6] * x
+
+                    Thus, acceleration (d^2x/dt^2) will be:
+                    acceleration
+                '''
+
                 self._global_sample_nums_plus_one()
                 cur_global_sample_nums = self._get_global_sample_nums()
                 chosen_evaluator: evaluator.Evaluator = np.random.choice(self._evaluators)
