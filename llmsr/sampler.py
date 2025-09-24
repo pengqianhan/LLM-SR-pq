@@ -75,7 +75,7 @@ class Sampler:
                 break
             
             prompt = self._database.get_prompt()
-            print('prompt.code:',prompt.code)
+            # print('prompt.code:',prompt.code)
             '''
             """
             Find the mathematical function skeleton that represents acceleration in a damped nonlinear oscillator system with driving force, given data on position, and velocity. 
@@ -116,7 +116,7 @@ class Sampler:
 
             # This loop can be executed in parallel on remote evaluator machines.
             for sample in samples:
-                print('sample:',sample)
+                print('============sample====================:\n',sample)
                 '''
                     """ Mathematical function for acceleration in a damped nonlinear oscillator
 
