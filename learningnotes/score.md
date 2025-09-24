@@ -111,3 +111,49 @@ def evaluate(data: dict) -> float:
 3. 返回负损失值作为质量评分
 
 这个分数反映了生成函数在特定测试用例上的拟合质量。
+
+
+--------------------------------
+
+[1 tool called]
+
+评分数据沿着 `ExperienceBuffer` 的生命周期被几个地方引用：
+
+- **聚类与评分记录**：每次 `register_program` 时，会先把 `scores_per_test` 降维成平均分 `_reduce_score`，再存入对应簇（`Cluster`）里，并更新该簇的 `score`。同时，经验池还记录每个岛的最好程序与分数，便于重置时找“创始人”。
+```212:219:llmsr/buffer.py
+signature = _get_signature(scores_per_test)
+if signature not in self._clusters:
+    score = _reduce_score(scores_per_test)
+    self._clusters[signature] = Cluster(score, program)
+else:
+    self._clusters[signature].register_program(program)
+```
+```116:140:llmsr/buffer.py
+self._islands[island_id].register_program(program, scores_per_test)
+score = _reduce_score(scores_per_test)
+if score > self._best_score_per_island[island_id]:
+    self._best_program_per_island[island_id] = program
+    self._best_scores_per_test_per_island[island_id] = scores_per_test
+    self._best_score_per_island[island_id] = score
+...
+program.score = score
+program.global_sample_nums = global_sample_nums
+program.sample_time = sample_time
+program.evaluate_time = evaluate_time
+```
+
+- **采样时加权与排序**：`get_prompt` 构造 prompt 前，会根据簇的 `score` 计算 softmax 权重，决定哪些实现被抽到 prompt；抽到以后，又用这些分数对实现排序，保证高分版本排在后面（越新的版本越“好”）。
+```223:247:llmsr/buffer.py
+cluster_scores = np.array([self._clusters[signature].score for signature in signatures])
+probabilities = _softmax(cluster_scores, temperature)
+...
+implementations.append(cluster.sample_program())
+scores.append(cluster.score)
+
+indices = np.argsort(scores)
+sorted_implementations = [implementations[i] for i in indices]
+```
+
+- **调试/分析用途**：当传入 `profiler` 时，会把平均分和时间信息写回到函数对象中（`Function.score` 等），方便后续分析或日志展示，但这些字段不会进入生成的 prompt，只用于掌握性能与历史。
+
+综上，评分主要服务于：①归类管理程序族；②选好分数高的实现参与 prompt；③记录与分析最优个体的演化。
