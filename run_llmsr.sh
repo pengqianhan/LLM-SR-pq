@@ -48,4 +48,4 @@
 
 
 # python main.py --use_api True --api_model "gpt-3.5-turbo" --problem_name oscillator2 --spec_path ./specs/specification_oscillator2_torch.txt --log_path ./logs/oscillator2_gpt3.5_torch
-# python main.py --problem_name oscillator2 --spec_path ./specs/specification_oscillator2_torch.txt --log_path ./logs/oscillator2_local_torch
+python main.py --problem_name oscillator2 --spec_path ./specs/specification_oscillator2_torch.txt --log_path ./logs/oscillator2_local_torch
