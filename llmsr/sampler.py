@@ -376,15 +376,27 @@ class LocalLLM(LLM):
         model_name = config.api_model
         if model_name.startswith("models/"):
             model_name = model_name[7:]  # 移除"models/"前缀
-        if model_name.startswith("gemini-flash-latest"):
-            thinkingBudget= 24576
+        if model_name.startswith("gemini-flash-lite-latest"):
+            thinking_budget = 24576
         elif model_name.startswith("gemini-flash-latest"):
-            thinkingBudget= 24576
+            thinking_budget = 24576
         elif model_name.startswith("gemini-2.5-pro"):
-            thinkingBudget= 32768
+            thinking_budget = 32768
         else:
-            thinkingBudget= 0
-        thinkingBudget= 0
+            thinking_budget = None
+
+        generation_config_kwargs = {
+            'max_output_tokens': 512,
+            'temperature': 0.8,
+            'top_p': 0.9,
+            'top_k': 40,
+        }
+
+        if thinking_budget is not None:
+            generation_config_kwargs['thinking_config'] = types.ThinkingConfig(
+                thinking_budget=thinking_budget
+            )
+
         for i in range(self._samples_per_prompt):
             retry_count = 0
             max_retries = 3
@@ -395,12 +407,7 @@ class LocalLLM(LLM):
                     response = client.models.generate_content(
                         model=model_name,
                         contents=prompt,
-                        config=types.GenerateContentConfig(
-                            max_output_tokens=512,
-                            temperature=0.8,
-                            top_p=0.9,
-                            top_k=40,
-                        )
+                        config=types.GenerateContentConfig(**generation_config_kwargs)
                     )
                     
                     if response.text:
@@ -408,8 +415,14 @@ class LocalLLM(LLM):
                         
                         if self._trim:
                             response_text = _extract_body(response_text, config)
-                        
+                        print('response_text:',response_text)
                         all_samples.append(response_text)
+
+                        candidate = next(iter(getattr(response, 'candidates', [])), None)
+                        if candidate is not None:
+                            thinking_output = getattr(candidate, 'thinking', None)
+                            if thinking_output:
+                                print('thinking_output:', thinking_output)
                         break
                     else:
                         print(f"Gemini API返回空响应 (样本 {i+1}/{self._samples_per_prompt})")
