@@ -116,7 +116,7 @@ class Sampler:
 
             # This loop can be executed in parallel on remote evaluator machines.
             for sample in samples:
-                print('============sample====================:\n',sample)
+                # print('============sample====================:\n',sample)
                 '''
                     """ Mathematical function for acceleration in a damped nonlinear oscillator
 
@@ -367,7 +367,7 @@ class LocalLLM(LLM):
         # 配置API密钥 - 优先使用GEMINI_API_KEY，否则使用API_KEY
         api_key = os.environ.get('GEMINI_API_KEY') or os.environ.get('API_KEY')
         if not api_key:
-            raise ValueError("请设置环境变量GEMINI_API_KEY或API_KEY")
+            raise ValueError("请设置环境变量GEMINI_API_KEY或GOOGLE_API_KEY")
         
         # 创建客户端
         client = genai.Client(api_key=api_key)
@@ -376,9 +376,9 @@ class LocalLLM(LLM):
         model_name = config.api_model
         if model_name.startswith("models/"):
             model_name = model_name[7:]  # 移除"models/"前缀
-        if model_name.startswith("gemini-flash-lite-latest"):
+        if model_name.startswith("gemini-flash-lite-latest") or model_name.startswith("gemini-2.5-flash-lite"):
             thinking_budget = 24576
-        elif model_name.startswith("gemini-flash-latest"):
+        elif model_name.startswith("gemini-flash-latest") or model_name.startswith("gemini-2.5-flash"):
             thinking_budget = 24576
         elif model_name.startswith("gemini-2.5-pro"):
             thinking_budget = 32768
@@ -409,19 +409,22 @@ class LocalLLM(LLM):
                         contents=prompt,
                         config=types.GenerateContentConfig(**generation_config_kwargs)
                     )
+                    # print('=================response====================:\n',response)
+
+                    # print('=================response.text====================:\n',response.text)
                     
                     if response.text:
                         response_text = response.text
                         
                         if self._trim:
                             response_text = _extract_body(response_text, config)
-                        print('response_text:',response_text)
+                        # print('=================response_text====================:\n',response_text)
                         all_samples.append(response_text)
 
                         candidate = next(iter(getattr(response, 'candidates', [])), None)
                         if candidate is not None:
                             thinking_output = getattr(candidate, 'thinking', None)
-                            if thinking_output:
+                            if thinking_output is not None:
                                 print('thinking_output:', thinking_output)
                         break
                     else:
