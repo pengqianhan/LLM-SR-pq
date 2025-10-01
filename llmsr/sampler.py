@@ -376,7 +376,15 @@ class LocalLLM(LLM):
         model_name = config.api_model
         if model_name.startswith("models/"):
             model_name = model_name[7:]  # 移除"models/"前缀
-        
+        if model_name.startswith("gemini-flash-latest"):
+            thinkingBudget= 24576
+        elif model_name.startswith("gemini-flash-latest"):
+            thinkingBudget= 24576
+        elif model_name.startswith("gemini-2.5-pro"):
+            thinkingBudget= 32768
+        else:
+            thinkingBudget= 0
+        thinkingBudget= 0
         for i in range(self._samples_per_prompt):
             retry_count = 0
             max_retries = 3
