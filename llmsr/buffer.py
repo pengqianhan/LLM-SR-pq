@@ -297,7 +297,7 @@ class Island:
 
         # Replace functions in the template with the list constructed here.
         prompt = dataclasses.replace(self._template, functions=versioned_functions)
-        print('prompt:',prompt)
+        # print('=================prompt====================:\n',prompt)
         return str(prompt)
 
 
