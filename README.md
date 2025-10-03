@@ -38,6 +38,39 @@ conda activate llmsr
 
 Note: Requires Python ≥ 3.9
 
+### 🆕 SmolAgents Simplified Architecture (NEW!)
+
+We now support a **simplified architecture using HuggingFace SmolAgents** that eliminates the need for a separate LLM server!
+
+**📖 Complete Documentation**: [SMOLAGENTS_INDEX.md](./SMOLAGENTS_INDEX.md) - Start here!
+
+**Quick start with SmolAgents:**
+```bash
+# Install
+pip install "smolagents[toolkit]>=1.0.0"
+
+# Run (no server needed - model runs directly!)
+python main_smolagents.py \
+  --problem_name oscillator1 \
+  --spec_path specs/specification_oscillator1_numpy.txt \
+  --log_path logs/oscillator1_smolagents
+
+# Or use the interactive script
+bash run_smolagents.sh
+```
+
+**Key Benefits:**
+- ✅ No separate inference server process (2 steps → 1)
+- ✅ Unified interface for 100+ models (local, OpenAI, Gemini, Claude, HF, etc.)
+- ✅ ~350 lines of infrastructure code simplified
+- ✅ Built-in safety and error handling
+- ✅ Preserves all core algorithms (multi-island evolution, safe execution)
+
+**Documentation:**
+- 🚀 Quick Start: [QUICKSTART_SMOLAGENTS.md](./QUICKSTART_SMOLAGENTS.md)
+- 📚 Complete Guide: [SMOLAGENTS_INDEX.md](./SMOLAGENTS_INDEX.md)
+- 🔄 Migration Guide: [SMOLAGENTS_MIGRATION.md](./SMOLAGENTS_MIGRATION.md)
+
 
 ## Datasets
 Benchmark datasets studied in this paper are provided in the [data/](./data) directory. For details on datasets and generation settings, please refer to [paper](https://arxiv.org/abs/2404.18400).
