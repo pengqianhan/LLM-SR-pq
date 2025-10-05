@@ -61,7 +61,7 @@ if __name__ == '__main__':
     if args.use_api:
         print(f"Using API model: {args.api_model} (type: {args.api_type})")
     else:
-        model_id = args.local_model_id or "Qwen/Qwen2.5-Coder-32B-Instruct"
+        model_id = args.local_model_id or "Qwen/Qwen3-8B"
         print(f"Using local model: {model_id}")
     
     print("=" * 80)
