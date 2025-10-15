@@ -391,7 +391,7 @@ class LocalLLM(LLM):
             'top_p': 0.9,
             'top_k': 40,
         }
-
+        thinking_budget = None
         if thinking_budget is not None:
             generation_config_kwargs['thinking_config'] = types.ThinkingConfig(
                 thinking_budget=thinking_budget
