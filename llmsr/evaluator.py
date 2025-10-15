@@ -261,7 +261,7 @@ class Evaluator:
         # print("--------------------------------")
         # print(f"program: \n {program}") # the programe is used to execute (evaluate the new_function)
         # print("--------------------------------")
-        # scores_per_test = {}
+        scores_per_test = {}
 
         time_reset = time.time()
         
