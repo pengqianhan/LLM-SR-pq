@@ -257,7 +257,11 @@ class Evaluator:
         """ Compile the hypothesis sample into a program and executes it on test inputs. """
         new_function, program = _sample_to_program(
             sample, version_generated, self._template, self._function_to_evolve)
-        scores_per_test = {}
+        # print(f"new_function: \n {new_function}")
+        # print("--------------------------------")
+        # print(f"program: \n {program}") # the programe is used to execute (evaluate the new_function)
+        # print("--------------------------------")
+        # scores_per_test = {}
 
         time_reset = time.time()
         
